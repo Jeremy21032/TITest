@@ -14,7 +14,7 @@ import NoticesBottomScreen from './NoticesBottomScreen';
 
 
 const RootDrawer = createDrawerNavigator();
-export const RootDrawerScreen = ({ navigation }) => (
+export const RootDrawerScreen = (props) => (
     <RootDrawer.Navigator drawerContent={props => <DrawerContent {...props} />} screenOptions={{
         headerStyle: { backgroundColor: styles.colors.darkCyan },
         headerTintColor: styles.colors.cultured,
@@ -22,8 +22,8 @@ export const RootDrawerScreen = ({ navigation }) => (
         drawerStyle: useWindowDimensions().width >= 768? null : { width: "75%" },
         overlayColor: "transparent",
     }}>
-        <RootDrawer.Screen name="HOME" component={HomeScreen} />
-        <RootDrawer.Screen name="PROFILE" component={ProfileScreen} />
+        <RootDrawer.Screen name="HOME" component={HomeScreen}/>
+        <RootDrawer.Screen name="PROFILE" component={ProfileScreen} {...props}/>
         <RootDrawer.Screen name="MAP" component={MapScreen} />
         <RootDrawer.Screen name="NOTICES" component={NoticesBottomScreen} />
         <RootDrawer.Screen name="VIDEOS" component={VideoStackScreen} />

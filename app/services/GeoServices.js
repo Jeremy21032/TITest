@@ -24,7 +24,6 @@ export const getLocation = async (refreshFn,location) => {
     });
     refreshFn(locationTmp);
     console.log(locationTmp);
-    return locationTmp;
 };
 export const getLocation2 = async (location) => {
 
