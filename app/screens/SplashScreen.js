@@ -59,7 +59,8 @@ export const SplashScreen = ({ navigation }) => {
             alignSelf:'center'
           }}
         >
-          versión 0.0.4
+          versión 0.0.11
+
         </Text>
       </Animatable.View>
     </View>

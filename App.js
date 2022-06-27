@@ -92,9 +92,7 @@ const App = () => {
       global.profilePic = userData.profilePic;
       let verify = await getPersonalInfomation();
       global.direccionBase = verify.direccionBase;
-      if (global.direccionBase != null && global.direccionBase != "") {
-        await getLocation(global.direccionBase);
-      }
+     
       global.birthdate = verify.birthdate;
       if (global.rol == null) {
         setLogin(false);
@@ -110,18 +108,12 @@ const App = () => {
   const FirstNav = () => {
     return global.rol == "cliente" ? <SecondNav /> : <RootStackScreen />;
   };
-  const MediumNav = () => {
-    return global.coordenadas != null && global.coordenadas.length > 0 ? (
-      <RootDrawerScreen />
-    ) : (
-      <></>
-    );
-  };
+
   const SecondNav = () => {
     return global.direccionBase == null  ? (
       <KnowStackScreen />
     ) : (
-      <MediumNav />
+      <RootDrawerScreen />
     );
   };
   const InternetNav = () => {

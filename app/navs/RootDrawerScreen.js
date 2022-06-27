@@ -28,6 +28,7 @@ export const RootDrawerScreen = ({ items }) => (
         overlayColor: "transparent",
     }}>
         {console.log(".....................ITEMS...................",items)}
+        <RootDrawer.Screen name="RECOMENDACIONES" component={RecomendationsScreen} />
         <RootDrawer.Screen name="INICIO" component={Home} />
         {/* <RootDrawer.Screen name="PERFIL" component={ProfileScreen} /> */}
         <RootDrawer.Screen name="PERFIL" component={ProfileStackScreen} />
@@ -36,7 +37,6 @@ export const RootDrawerScreen = ({ items }) => (
         <RootDrawer.Screen name="VIDEOS" component={VideoStackScreen} />
         <RootDrawer.Screen name="BADGES" component={BadgesScreen} />
         <RootDrawer.Screen name="SUGERENCIAS" component={SuggestionsStackScreen} />
-        <RootDrawer.Screen name="RECOMENDACIONES" component={RecomendationsScreen} />
     </RootDrawer.Navigator>
 )
 

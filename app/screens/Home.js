@@ -5,52 +5,100 @@ import {
   Button,
   ScrollView,
   ActivityIndicator,
-  Dimensions
+  Dimensions,
+  RefreshControl,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import { useTheme } from "react-native-paper";
 import MapView, { Polygon, PROVIDER_GOOGLE } from "react-native-maps";
+import { getLocation } from "../services/GeoServices";
 const height = Dimensions.get("window").height;
-export const Home = () => {
+import * as commonStyles from "../../assets/styles/appStyles";
+
+export const Home = ({ navigation }) => {
   const paperTheme = useTheme();
+  const [coordenadas, setCoordenadas] = useState([]);
+  const [ newCoordenadas,setNewCoordenadas] = useState([]);
   const [data, setData] = useState({
-    ruta: "",
-    horario: "",
-    frecuencia: "",
-    servicio: "",
     adm_zonal: "",
-    horas: "",
     centroLogistico: "",
+    frecuencia: "",
+    horario: "",
+    horas: "",
+    ruta: "",
+    servicio: "",
+    coordenadas:null
   });
   const [location, setLocation] = useState({
     latitude: -0.2755586,
     longitude: -78.5433207,
   });
 
-  useEffect(() => {
-    setData({
-      adm_zonal: global.coordenadas[0].adm_zonal,
-      centroLogistico: global.coordenadas[0].centroLogistico,
-      frecuencia: global.coordenadas[0].frecuencia,
-      horario: global.coordenadas[0].horario,
-      horas: global.coordenadas[0].horas,
-      ruta: global.coordenadas[0].ruta,
-      servicio: global.coordenadas[0].servicio,
-    });
-    setLocation({
-      ...location,
-      latitude: global.coordenadas[0].calloutlatitude,
-      longitude: global.coordenadas[0].calloutlongitude,
+  const [refreshing, setRefreshing] = React.useState(false);
+  const wait = (timeout) => {
+    return new Promise((resolve) => setTimeout(resolve, timeout));
+  };
+  const onRefresh = React.useCallback(() => {
+    global.coordenadas = null;
+    setNewCoordenadas([])
+    
+    setRefreshing(true);
+    wait(2000).then(() => {
+      const getInfo = async () => {
+        getLocation(global.direccionBase, setNewCoordenadas);
+        setData({
+          ...data,
+          coordenadas:newCoordenadas,
+        });
+        global.coordenadas = data.coordenadas;
+        if (global.coordenadas != null && global.coordenadas.length > 0) {
+          setData({
+            adm_zonal: global.coordenadas[0].adm_zonal,
+            centroLogistico: global.coordenadas[0].centroLogistico,
+            frecuencia: global.coordenadas[0].frecuencia,
+            horario: global.coordenadas[0].horario,
+            horas: global.coordenadas[0].horas,
+            ruta: global.coordenadas[0].ruta,
+            servicio: global.coordenadas[0].servicio,
+          });
+          setLocation({
+            ...location,
+            latitude: global.coordenadas[0].calloutlatitude,
+            longitude: global.coordenadas[0].calloutlongitude,
+          });
+
+        }
+        setRefreshing(false);
+      };
+      getInfo();
     });
   }, []);
+  useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", () => {
+      onRefresh();
+      return unsubscribe;
+    });
+  }, [navigation]);
   const ComponenteFalso = () => {
     return <ActivityIndicator size="large" />;
   };
   const ComponenteVerdadero = () => {
     return (
-      <ScrollView>
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[commonStyles.colors.gradient1]}
+            progressBackgroundColor={commonStyles.colors.white}
+          />
+        }
+      >
         <View
-          style={{ flex: 1, height: Dimensions.get("window").height / 1.65 }}
+          style={{
+            flex: 1,
+            height: Dimensions.get("window").height / 1.65,
+          }}
         >
           <Text style={{ color: paperTheme.colors.text }}>
             Bienvenido {global.name} {global.lastName}
@@ -139,13 +187,22 @@ export const Home = () => {
     );
   };
   return (
-    <View style={{ flex: 1 }}>
+    <ScrollView
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={[commonStyles.colors.gradient1]}
+          progressBackgroundColor={commonStyles.colors.white}
+        />
+      }
+    >
       {global.coordenadas != null && global.coordenadas.length > 0 ? (
         <ComponenteVerdadero />
       ) : (
         <ComponenteFalso />
       )}
-    </View>
+    </ScrollView>
   );
 };
 
@@ -173,6 +230,5 @@ const styles = StyleSheet.create({
   map: {
     width: Dimensions.get("window").width,
     height: height / 2,
-    
   },
 });

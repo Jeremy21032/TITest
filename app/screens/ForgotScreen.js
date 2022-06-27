@@ -86,7 +86,7 @@ const paperTheme = useTheme();
                         size={20} />
                     <TextInput
                         placeholder='Tu correo electrónico'
-                        style={[styles.commons.textInput,{color: paperTheme.dark ? styles.colors.white:styles.colors.darkBlue,}]}
+                        style={[styles.commons.textInput,{color: styles.colors.darkBlue,}]}
                         autoCapitalize="none"
                         onChangeText={(val) => textInputChange(val)}
                     />

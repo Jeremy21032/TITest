@@ -22,9 +22,10 @@ import DateTimePickerModal from "react-native-modal-datetime-picker";
 import { LoadingOverlay } from "../components/LoadingOverlay";
 import { ModalInfoError } from "../components/ModalInfoError";
 import { ModalInfoCorrect } from "../components/ModalInfoCorrect";
-import { getLocation } from "../services/GeoServices";
+import { getLocation, getLocationR } from "../services/GeoServices";
 import { formattedDate } from "../Functions";
 import { useTheme } from "react-native-paper";
+import { getAuth } from "firebase/auth";
 
 export const KnowScreen = ({ navigation }) => {
   const paperTheme = useTheme();
@@ -38,7 +39,7 @@ export const KnowScreen = ({ navigation }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [messageError, setMessageError] = useState("");
   const [direction, setDirection] = useState(null);
-  const [map] = useState();
+  const [map,setMap] = useState();
   const [data, setData] = useState({
     date: null,
     direcionBase: null,
@@ -51,10 +52,25 @@ export const KnowScreen = ({ navigation }) => {
   const hideDatePicker = () => {
     setDatePickerVisibility(false);
   };
+  function cerrar() {
+    const auth = getAuth();
+    auth
+      .signOut()
+      .then(function () {
+        global.rol = "";
+        global.login = false;
+        console.log("Log Out");
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
 
+        console.log("Error: ", (errorCode, errorMessage));
+      });
+  }
   const handleConfirm = (date) => {
     let pickedDate = new Date(date);
-    let finalDate =formattedDate(pickedDate)
+    let finalDate = formattedDate(pickedDate);
     console.warn("A date has been picked: ", finalDate);
     setData({ ...data, date: finalDate });
     hideDatePicker();
@@ -98,7 +114,7 @@ export const KnowScreen = ({ navigation }) => {
       data.direcionBase != "" &&
       data.date != ""
     ) {
-      global.birthdate=data.date;
+      global.birthdate = data.date;
       actualizarInformacion()
         .then(() => {
           setModalVisibleCorrect(true);
@@ -110,7 +126,7 @@ export const KnowScreen = ({ navigation }) => {
           setMessageError(error.message);
           setIsLoading(false);
         });
-        setIsLoading(false);
+      setIsLoading(false);
     } else {
       setModalVisibleError(true);
       setMessageError("Verifica que los campos estén llenos");
@@ -119,11 +135,10 @@ export const KnowScreen = ({ navigation }) => {
   };
   let actualizarInformacion = async () => {
     await aniadirDireccionBase(data.direcionBase, data.date);
-    await getLocation(data.direcionBase);
     await getDireccionBase(setDirection, canContinue);
   };
   let canContinue = () => {
-    navigation.navigate("HOMEKN", { items: map });
+    cerrar();
   };
   return (
     <View style={styles.commons.signContainer}>
@@ -150,14 +165,25 @@ export const KnowScreen = ({ navigation }) => {
           Fecha de Nacimiento
         </Text>
         <View style={[styles.commons.action, { marginBottom: 35 }]}>
-          <FontAwesome name="birthday-cake" color={styles.colors.darkBlue} size={20} />
+          <FontAwesome
+            name="birthday-cake"
+            color={styles.colors.darkBlue}
+            size={20}
+          />
           <TextInput
             placeholder={
               data.date != "" && data.date != null
                 ? data.date
                 : "Ingresa tu fecha de nacimiento"
             }
-            style={[styles.commons.textInput,{color: paperTheme.dark ? styles.colors.white:styles.colors.darkBlue,}]}
+            style={[
+              styles.commons.textInput,
+              {
+                color: paperTheme.dark
+                  ? styles.colors.white
+                  : styles.colors.darkBlue,
+              },
+            ]}
             autoCapitalize="none"
             editable={false}
             placeholderTextColor={
@@ -198,7 +224,9 @@ export const KnowScreen = ({ navigation }) => {
             colors={[styles.colors.gradient2, styles.colors.gradient1]}
             style={styles.commons.signIn}
           >
-            <Text style={[styles.commons.textSign, { color: styles.colors.white }]}>
+            <Text
+              style={[styles.commons.textSign, { color: styles.colors.white }]}
+            >
               Continuar
             </Text>
           </LinearGradient>
